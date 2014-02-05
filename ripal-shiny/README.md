@@ -1,12 +1,12 @@
-ripal
-=====
-
-Password Dump Analysis in R
+ripal-shiny
+===========
+  
+Shiny GUI for ripal
 
 *Heavily* based on [pipal](https://github.com/digininja/pipal) by @digininja.
 
 **To run the GUI shiny app (`ripal-shiny`) locally**
-
+  
 - clone the repository: `git clone https://github.com/ddsbook/ripal.git`
 - grab a free copy of [RStudio](http://www.rstudio.com/) & start it
 - ensure the `shiny` package is installed: `install.packages('shiny')` and loaded: `library(shiny)`

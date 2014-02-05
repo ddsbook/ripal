@@ -1,0 +1,20 @@
+html, head, body, div, p, span, thead {
+	font-family:Lato, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+table, td {
+	font-family:'Fantasque Sans Mono', "Lucida Console", Monaco, "Courier New", Courier, monospace;
+}
+
+#topN {
+	width:40px;
+}
+
+input[type="file"] {
+  line-height: 10px;
+}
+
+.topDiv {
+	display:inline-block;
+	margin-right:30px;
+}
