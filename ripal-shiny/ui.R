@@ -25,11 +25,13 @@ shinyUI(pageWithSidebar(
     helpText("Upload a cracked password dump (ASCII/UTF-8, pls) ",
              "and get some spiffy stats in return! Large password ",
              "dumps will take a while, so pls be kind to the server."),
-    
+      
     helpText("For really large cracked password dumps, you're better off ",
              "running this locally in RStudio or on your own instance. ",
              "We will severely limit the functionality if abuse is detected."),
-             
+    
+    div(HTML("If you need a test file, grab the '<a href='https://raw.github.com/ddsbook/ripal/master/singles.org.txt'>singles.org</a>' cracked password dump from our github repository or from the original dump at <a href='https://wiki.skullsecurity.org/Passwords'>SkullSecurity</a>.")),
+    
     tags$hr(),
     
     fileInput('dumpfile', 
