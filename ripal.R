@@ -1,8 +1,10 @@
 library(data.table)
 library(stringr)
 
-passwords <- fread("phpbb.txt")
-setnames(passwords ,"V1", "orig") # decent label for the column
+#' ended up needing to change this since fread() stops reading on a blank line
+#' which is clearly stated in the help page for it but something I completely missed
+passwords <- read.delim("phbb.txt", header=FALSE, col.names=c("orig"), stringsAsFactors=FALSE)
+passwords <- data.table(passwords)
 tot <- nrow(passwords) # we compute many ratios with this
 
 top.10 <- as.data.frame(head(sort(table(passwords$orig), decreasing=TRUE),10))
