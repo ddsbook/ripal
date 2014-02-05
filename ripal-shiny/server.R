@@ -149,7 +149,13 @@ shinyServer(function(input, output) {
     
   })  
   
-  output$worst25 <- renderTable({
+  output$worst25 <- renderTable({    
+    #' 25 worst passwords (global)  
+    worst.pass <- c("password", "123456", "12345678", "qwerty", "abc123", 
+                    "monkey", "1234567", "letmein", "trustno1", "dragon", 
+                    "baseball", "111111", "iloveyou", "master", "sunshine", 
+                    "ashley", "bailey", "passw0rd", "shadow", "123123", 
+                    "654321", "superman", "qazwsx", "michael", "football")
     if (is.null(input$dumpfile)) { return(NULL) }
     p <- results()$passwords    
     worst.ct <- sapply(worst.pass, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE)
@@ -159,30 +165,35 @@ shinyServer(function(input, output) {
   output$weekdaysFull <- renderTable({
     if (is.null(input$dumpfile)) { return(NULL) }
     p <- results()$passwords    
+    weekdays.full <- c("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
     printCounts(sapply(weekdays.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$weekdaysAbbrev <- renderTable({
     if (is.null(input$dumpfile)) { return(NULL) }
     p <- results()$passwords    
+    weekdays.abbrev <- c("sun", "mon", "tue", "wed", "thu", "fri", "sat")
     printCounts(sapply(weekdays.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$monthsFull <- renderTable({
     if (is.null(input$dumpfile)) { return(NULL) }
-    p <- results()$passwords    
+    p <- results()$passwords        
+    months.full <- tolower(month.name)
     printCounts(sapply(months.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$monthsAbbrev <- renderTable({
     if (is.null(input$dumpfile)) { return(NULL) }
     p <- results()$passwords    
+    months.abbrev <- tolower(month.abb)
     printCounts(sapply(months.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$yearsTab <- renderTable({
     if (is.null(input$dumpfile)) { return(NULL) }
     p <- results()$passwords    
+    yrs <- as.character(1975:2030)
     printCounts(sapply(yrs, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)  
   
