@@ -10,11 +10,33 @@ shinyServer(function(input, output) {
     
   results <- reactive({
     
-    dumpfile <- input$dumpfile
+    print("results()")
     
-    if (is.null(dumpfile)) { return(NULL) }
+    useLocal <- input$useLocal
     
-    passwords <- read.delim(dumpfile$datapath, header=FALSE, col.names=c("orig"), stringsAsFactors=FALSE)
+    dumpfile <- NULL 
+    
+    if (is.null(input$dumpfile)) {
+      if (is.null(input$localDumpFile)) {
+        return(NULL)
+      } else {        
+        pw.info <- file.info(sprintf("www/data/%s",input$localDumpFile))
+        print(str(pw.info))
+        dumpfile <- list(datapath=sprintf("www/data/%s", input$localDumpFile),
+                         name=input$localDumpFile, 
+                         size=pw.info$size)
+        print(str(dumpfile))
+      }
+    } else {      
+      dumpfile <- input$dumpfile      
+    }
+    
+    passwords <- read.delim(dumpfile$datapath,
+                            header=FALSE, 
+                            col.names=c("orig"), 
+                            blank.lines.skip = FALSE,
+                            stringsAsFactors=FALSE)
+    
     passwords <- data.table(passwords)
     tot <- nrow(passwords) 
     
@@ -51,7 +73,7 @@ shinyServer(function(input, output) {
   #' reactive value changes. 
     
   output$overview1 <- renderText({
-    if (is.null(input$dumpfile)) { return("No file selected") }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return("No file selected") }
     return(sprintf("File: %s (%s lines/%s bytes)",
                    results()$filename, 
                    format(results()$tot, big.mark=",", scientific=FALSE), 
@@ -59,7 +81,7 @@ shinyServer(function(input, output) {
   })
   
   output$top1 <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords
     top.n <- as.data.frame(head(sort(table(p$orig), decreasing=TRUE), input$topN))
     top.n$Password <- rownames(top.n)
@@ -71,7 +93,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$topBasewords <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords
     basewords <- as.data.frame(head(sort(table(p[nchar(p$basewords)>3,]$basewords), decreasing=TRUE), input$topN))
     basewords$Password <- rownames(basewords)
@@ -83,7 +105,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$topLen <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords
     by.length <- as.data.frame(table(p$len))
     colnames(by.length) <- c("Password","Count")
@@ -92,7 +114,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$topFreq <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords
     length.tab <- table(p$len)
     by.freq <- as.data.frame(table(factor(p$len, 
@@ -103,7 +125,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$pwLenFreq <- renderPlot({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords
     length.tab <- table(p$len)
     plot(length.tab, col="steelblue", main="Password Length Frequency",
@@ -112,7 +134,7 @@ shinyServer(function(input, output) {
 
   output$pwCompStats <- renderText({
     
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     
     p <- results()$passwords
     
@@ -151,62 +173,52 @@ shinyServer(function(input, output) {
   })  
   
   output$worst25 <- renderTable({    
-    #' 25 worst passwords (global)  
-    worst.pass <- c("password", "123456", "12345678", "qwerty", "abc123", 
-                    "monkey", "1234567", "letmein", "trustno1", "dragon", 
-                    "baseball", "111111", "iloveyou", "master", "sunshine", 
-                    "ashley", "bailey", "passw0rd", "shadow", "123123", 
-                    "654321", "superman", "qazwsx", "michael", "football")
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     worst.ct <- sapply(worst.pass, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE)
     printCounts(worst.ct)    
   }, include.rownames=FALSE)
   
   output$weekdaysFull <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    weekdays.full <- c("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
     printCounts(sapply(weekdays.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$weekdaysAbbrev <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    weekdays.abbrev <- c("sun", "mon", "tue", "wed", "thu", "fri", "sat")
     printCounts(sapply(weekdays.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$monthsFull <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords        
-    months.full <- tolower(month.name)
     printCounts(sapply(months.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$monthsAbbrev <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    months.abbrev <- tolower(month.abb)
     printCounts(sapply(months.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)
   
   output$yearsTab <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     yrs <- as.character(1975:2030)
     printCounts(sapply(yrs, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
   }, include.rownames=FALSE)  
   
   output$pwLastDigit <- renderPlot({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     last.num.factor <- factor(na.omit(p$last.num))
     plot(last.num.factor, col="steelblue", main="Count By Last digit")    
   })
   
   output$last2 <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     last.df <- as.data.frame(tail(sort(table(na.omit(p$last.2))), input$topN))
     last.df$Digits <- rownames(last.df)
@@ -217,7 +229,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$last3 <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     last.df <- as.data.frame(tail(sort(table(na.omit(p$last.3))), input$topN))
     last.df$Digits <- rownames(last.df)
@@ -228,7 +240,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$last4 <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     last.df <- as.data.frame(tail(sort(table(na.omit(p$last.4))), input$topN))
     last.df$Digits <- rownames(last.df)
@@ -239,7 +251,7 @@ shinyServer(function(input, output) {
   }, include.rownames=FALSE)
   
   output$last5 <- renderTable({
-    if (is.null(input$dumpfile)) { return(NULL) }
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     last.df <- as.data.frame(tail(sort(table(na.omit(p$last.5))), input$topN))
     last.df$Digits <- rownames(last.df)

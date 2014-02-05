@@ -5,7 +5,7 @@
 
 shinyUI(pageWithSidebar(
 
-  headerPanel("ripal - password dump analysis"),
+  headerPanel("ripal - password dump analysis in R"),
   
   sidebarPanel(
     tags$head( 
@@ -23,26 +23,34 @@ shinyUI(pageWithSidebar(
     ), 
     
     helpText("Upload a cracked password dump (ASCII/UTF-8, pls) ",
+             "or choose from an existing password dump in the list ",
              "and get some spiffy stats in return! Large password ",
              "dumps will take a while, so pls be kind to the server."),
-      
-    helpText("For really large cracked password dumps, you're better off ",
-             "running this locally in RStudio or on your own instance. ",
-             "We will severely limit the functionality if abuse is detected."),
     
-    div(HTML("If you need a test file, grab the '<a href='https://raw.github.com/ddsbook/ripal/master/singles.org.txt'>singles.org</a>' cracked password dump from our github repository or from the original dump at <a href='https://wiki.skullsecurity.org/Passwords'>SkullSecurity</a>.")),
+    selectInput("localDumpFile",
+                "Choose from existing lists:",
+                c("hak5.txt", "hotmail.txt", "myspace.txt", 
+                  "phpbb.txt", "singles.org.txt"),
+                selected="hak5.txt"),
     
-    tags$hr(),
+    div(HTML("<b>OR</b>")),
     
     fileInput('dumpfile', 
-              'Choose password dump to analyze:', 
+              'Choose a password dump to analyze:', 
               accept=c('text/plain')),
     
     numericInput("topN", 
-                 "Limit most 'Top N' lists to this many items:", 
+                 "'Top #' lists max items:", 
                  10, 5, 30, step=1),
+        
+    div(HTML("For really large cracked password dumps, you're better off ",
+             "running this locally in RStudio or on your own server instance. ",
+             "We've kept the default 5MB file upload size limit enabled, but you can ",
+             "override that in your local installs by changing <code>maxRequestSize</code>:",
+             "e.g. <code>options(shiny.maxRequestSize=30*1024^2)</code>.",
+             "We will <i>severely</i> limit the functionality if abuse is detected.<br/><br/>")),
     
-    tags$hr(),
+    div(HTML("You can find many password dumps at <a href='https://wiki.skullsecurity.org/Passwords'>SkullSecurity</a>.<hr/>")),
     
     div(HTML("Source at: <a href='https://github.com/ddsbook/ripal'>github</a>")),
     br(),

@@ -10,6 +10,15 @@ table, td {
 	width:40px;
 }
 
+.localSel {
+  display:table-cell;
+  vertical-align:bottom;
+}
+
+#useLocal, #localDumpFile {
+  display:inline-block;
+}
+
 input[type="file"] {
   line-height: 10px;
 }
