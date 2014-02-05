@@ -14,4 +14,6 @@ Shiny GUI for ripal
 - use `Session->Set Working Directory...` to select the `ripal-shiny` folder
 - run the application (`runApp()`)
 
+![alt text](https://raw.github.com/ddsbook/ripal/master/ripal-shiny-screenshot.png "ripal-shiny screenshot")
+
 Find out more over at [Data Driven Security](http://datadrivensecurity.info/blog/posts/2014/Feb/ripal/).
