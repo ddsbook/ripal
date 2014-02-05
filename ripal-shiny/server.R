@@ -66,7 +66,7 @@ shinyServer(function(input, output) {
     rownames(top.n) <- NULL
     top.n <- top.n[,c(2,1)]
     colnames(top.n) <- c("Password","Count")
-    top.n$Percent <- sprintf("%3.2f%%", ((top.n$Count / tot) * 100))
+    top.n$Percent <- sprintf("%3.2f%%", ((top.n$Count / results()$tot) * 100))
     print(top.n)
   }, include.rownames=FALSE)
   
