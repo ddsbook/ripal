@@ -31,13 +31,7 @@ shinyServer(function(input, output) {
       dumpfile <- input$dumpfile      
     }
     
-    passwords <- read.delim(dumpfile$datapath,
-                            header=FALSE, 
-                            col.names=c("orig"), 
-                            blank.lines.skip = FALSE,
-                            stringsAsFactors=FALSE)
-    
-    passwords <- data.table(passwords)
+    passwords <- data.table(orig=readLines(file(dumpfile$datapath)))
     tot <- nrow(passwords) 
     
     passwords$basewords <- gsub("^[^a-z]*", "", passwords$orig, ignore.case=TRUE)
@@ -52,12 +46,6 @@ shinyServer(function(input, output) {
     passwords$last.3 <- str_extract(passwords$orig, "[0-9]{3}$")
     passwords$last.4 <- str_extract(passwords$orig, "[0-9]{4}$")
     passwords$last.5 <- str_extract(passwords$orig, "[0-9]{5}$")
-    
-    passwords$numCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[0-9]", passwords$orig))), length))
-    passwords$letCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[a-zA-Z]", passwords$orig))), length))
-    passwords$upperCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:upper:]]", passwords$orig))), length))
-    passwords$lowerCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:lower:]]", passwords$orig))), length))
-    passwords$punctCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:punct:]]", passwords$orig))), length))
         
     return(list(filename=dumpfile$name, bytes=dumpfile$size, passwords=passwords, tot=tot))
     
