@@ -38,8 +38,9 @@ shinyServer(function(input, output) {
   #' helper function to display tabular data
   
   printCounts <- function(ct) {
+    p <- results()$passwords
     tmp <- data.frame(Term=names(ct), Count=as.numeric(unlist(ct)))
-    tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / tot) * 100))
+    tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / p$tot) * 100))
     print(tmp[order(-tmp$Count),])
   }
   
@@ -51,10 +52,11 @@ shinyServer(function(input, output) {
     
   output$overview1 <- renderText({
     if (is.null(input$dumpfile)) { return("No file selected") }
+    p <- results()$passwords
     return(sprintf("File: %s (%s lines/%s bytes)",
                    results()$filename, 
-                   format(results()$tot, big.mark=",", scientific=FALSE), 
-                   format(results()$bytes, big.mark=",", scientific=FALSE)))
+                   format(p$tot, big.mark=",", scientific=FALSE), 
+                   format(p$bytes, big.mark=",", scientific=FALSE)))
   })
   
   output$top1 <- renderTable({
