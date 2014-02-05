@@ -52,6 +52,12 @@ shinyServer(function(input, output) {
     passwords$last.3 <- str_extract(passwords$orig, "[0-9]{3}$")
     passwords$last.4 <- str_extract(passwords$orig, "[0-9]{4}$")
     passwords$last.5 <- str_extract(passwords$orig, "[0-9]{5}$")
+    
+    passwords$numCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[0-9]", passwords$orig))), length))
+    passwords$letCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[a-zA-Z]", passwords$orig))), length))
+    passwords$upperCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:upper:]]", passwords$orig))), length))
+    passwords$lowerCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:lower:]]", passwords$orig))), length))
+    passwords$punctCount <- unlist(lapply((regmatches(passwords$orig, gregexpr("[[:punct:]]", passwords$orig))), length))
         
     return(list(filename=dumpfile$name, bytes=dumpfile$size, passwords=passwords, tot=tot))
     
@@ -64,6 +70,13 @@ shinyServer(function(input, output) {
     tmp <- data.frame(Term=names(ct), Count=as.numeric(unlist(ct)))
     tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / results()$tot) * 100))
     print(tmp[order(-tmp$Count),])
+  }
+  
+  countsDF <- function(ct) {
+    p <- results()$passwords
+    tmp <- data.frame(Term=names(ct), Count=as.numeric(unlist(ct)))
+    tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / results()$tot) * 100))
+    return(tmp[order(-tmp$Count),])
   }
   
   #' each "output" function follows the Shiny pattern, rendering
@@ -103,6 +116,40 @@ shinyServer(function(input, output) {
     basewords$Percent <- sprintf("%3.2f%%", ((basewords$Count / results()$tot) * 100))
     print(basewords)
   }, include.rownames=FALSE)
+  
+  output$top1Chart <- renderPlot({
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords
+    top.n <- as.data.frame(head(sort(table(p$orig), decreasing=TRUE), input$topN))
+    top.n$Password <- rownames(top.n)
+    rownames(top.n) <- NULL
+    top.n <- top.n[,c(2,1)]
+    colnames(top.n) <- c("Password","Count")
+    top.n$Percent <- sprintf("%3.2f%%", ((top.n$Count / results()$tot) * 100))
+    gg <- ggplot(data=top.n, aes(x=reorder(Password, Count), y=Count))
+    gg <- gg + geom_bar(stat="identity", fill="steelblue")
+    gg <- gg + labs(x="Password", y="Count", title=sprintf("Top %d Passwords", input$topN))
+    gg <- gg + coord_flip()
+    gg <- gg + theme_bw()
+    print(gg)
+  })
+  
+  output$topBasewordsChart <- renderPlot({
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords
+    basewords <- as.data.frame(head(sort(table(p[nchar(p$basewords)>3,]$basewords), decreasing=TRUE), input$topN))
+    basewords$Password <- rownames(basewords)
+    rownames(basewords) <- NULL
+    basewords <- basewords[,c(2,1)]
+    colnames(basewords) <- c("Password","Count")
+    basewords$Percent <- sprintf("%3.2f%%", ((basewords$Count / results()$tot) * 100))
+    gg <- ggplot(data=basewords, aes(x=reorder(Password, Count), y=Count))
+    gg <- gg + geom_bar(stat="identity", fill="steelblue")
+    gg <- gg + labs(x="Password", y="Count", title=sprintf("Top %d Basewords", input$topN))
+    gg <- gg + coord_flip()
+    gg <- gg + theme_bw()
+    print(gg)
+  })
   
   output$topLen <- renderTable({
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
@@ -172,43 +219,69 @@ shinyServer(function(input, output) {
     
   })  
   
-  output$worst25 <- renderTable({    
+  output$worst25 <- renderDataTable({    
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
     worst.ct <- sapply(worst.pass, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE)
-    printCounts(worst.ct)    
-  }, include.rownames=FALSE)
+    countsDF(worst.ct)    
+  }, options=list(iDisplayLength=10))
   
-  output$weekdaysFull <- renderTable({
+  output$weekdaysFullDT <- renderDataTable({    
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    printCounts(sapply(weekdays.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
-  }, include.rownames=FALSE)
+    countsDF(sapply(weekdays.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
   
-  output$weekdaysAbbrev <- renderTable({
+  output$weekdaysAbbrevDT <- renderDataTable({    
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    printCounts(sapply(weekdays.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
-  }, include.rownames=FALSE)
+    countsDF(sapply(weekdays.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
   
-  output$monthsFull <- renderTable({
-    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
-    p <- results()$passwords        
-    printCounts(sapply(months.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
-  }, include.rownames=FALSE)
-  
-  output$monthsAbbrev <- renderTable({
+  output$monthsFullDT <- renderDataTable({    
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    printCounts(sapply(months.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
-  }, include.rownames=FALSE)
+    countsDF(sapply(months.full, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
   
-  output$yearsTab <- renderTable({
+  output$monthsAbbrevDT <- renderDataTable({    
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
     p <- results()$passwords    
-    yrs <- as.character(1975:2030)
-    printCounts(sapply(yrs, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))
-  }, include.rownames=FALSE)  
+    countsDF(sapply(months.abbrev, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
+  
+  output$yearsDT <- renderDataTable({    
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords    
+    d <- input$dateRange
+    yrs <- as.character(d[1]:d[2])
+    countsDF(sapply(yrs, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
+  
+  output$yearRangeTitle <- renderText({
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords    
+    d <- input$dateRange
+    return(sprintf("Years [%d-%d] Corpus Counts", d[1], d[2]))
+  })
+  
+  output$colorsDT <- renderDataTable({    
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords    
+    countsDF(sapply(common.colors, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
+  
+  output$seasonsDT <- renderDataTable({    
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords    
+    countsDF(sapply(seasons, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
+  
+  output$planetsDT <- renderDataTable({    
+    if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }
+    p <- results()$passwords    
+    countsDF(sapply(planets, function(x) { return(x=list("count"=sum(grepl(x, results()$p$orig, ignore.case=TRUE))))}, simplify=FALSE))    
+  }, options=list(iDisplayLength=10))
   
   output$pwLastDigit <- renderPlot({
     if (is.null(input$dumpfile) & is.null(input$localDumpFile)) { return(NULL) }

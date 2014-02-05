@@ -7,6 +7,7 @@
 library(shiny)
 library(data.table)
 library(stringr)
+library(ggplot2)
 
 #' 25 worst passwords (global)  
 
@@ -20,3 +21,10 @@ weekdays.full <- c("sunday", "monday", "tuesday", "wednesday", "thursday", "frid
 weekdays.abbrev <- c("sun", "mon", "tue", "wed", "thu", "fri", "sat")
 months.full <- tolower(month.name)
 months.abbrev <- tolower(month.abb)
+
+common.colors <- c("black", "blue", "brown", "gray", "green", "orange", "pink", 
+                   "purple", "red", "white", "yellow", "violet", "indigo")
+
+seasons <- c("summer", "fall", "winter", "spring")
+
+planets <- c("mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto")
