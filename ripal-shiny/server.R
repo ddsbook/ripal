@@ -14,8 +14,8 @@ shinyServer(function(input, output) {
     
     if (is.null(dumpfile)) { return(NULL) }
     
-    passwords <- fread(dumpfile$datapath, header=FALSE)
-    setnames(passwords ,"V1", "orig") 
+    passwords <- read.delim(dumpfile$datapath, header=FALSE, col.names=c("orig"), stringsAsFactors=FALSE)
+    passwords <- data.table(passwords)
     tot <- nrow(passwords) 
     
     passwords$basewords <- gsub("^[^a-z]*", "", passwords$orig, ignore.case=TRUE)
@@ -40,7 +40,7 @@ shinyServer(function(input, output) {
   printCounts <- function(ct) {
     p <- results()$passwords
     tmp <- data.frame(Term=names(ct), Count=as.numeric(unlist(ct)))
-    tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / p$tot) * 100))
+    tmp$Percent <- sprintf("%3.2f%%", ((tmp$Count / results()$tot) * 100))
     print(tmp[order(-tmp$Count),])
   }
   
@@ -52,11 +52,10 @@ shinyServer(function(input, output) {
     
   output$overview1 <- renderText({
     if (is.null(input$dumpfile)) { return("No file selected") }
-    p <- results()$passwords
     return(sprintf("File: %s (%s lines/%s bytes)",
                    results()$filename, 
-                   format(p$tot, big.mark=",", scientific=FALSE), 
-                   format(p$bytes, big.mark=",", scientific=FALSE)))
+                   format(results()$tot, big.mark=",", scientific=FALSE), 
+                   format(results()$bytes, big.mark=",", scientific=FALSE)))
   })
   
   output$top1 <- renderTable({
@@ -79,7 +78,7 @@ shinyServer(function(input, output) {
     rownames(basewords) <- NULL
     basewords <- basewords[,c(2,1)]
     colnames(basewords) <- c("Password","Count")
-    basewords$Percent <- sprintf("%3.2f%%", ((basewords$Count / tot) * 100))
+    basewords$Percent <- sprintf("%3.2f%%", ((basewords$Count / results()$tot) * 100))
     print(basewords)
   }, include.rownames=FALSE)
   
@@ -88,7 +87,7 @@ shinyServer(function(input, output) {
     p <- results()$passwords
     by.length <- as.data.frame(table(p$len))
     colnames(by.length) <- c("Password","Count")
-    by.length$Percent <- sprintf("%3.2f%%", ((by.length$Count / tot) * 100))
+    by.length$Percent <- sprintf("%3.2f%%", ((by.length$Count / results()$tot) * 100))
     print(by.length)
   }, include.rownames=FALSE)
   
@@ -99,7 +98,7 @@ shinyServer(function(input, output) {
     by.freq <- as.data.frame(table(factor(p$len, 
                                           levels = names(length.tab[order(length.tab, decreasing = TRUE)]))))
     colnames(by.freq) <- c("Password","Count")
-    by.freq$Percent <- sprintf("%3.2f%%", ((by.freq$Count / tot) * 100))
+    by.freq$Percent <- sprintf("%3.2f%%", ((by.freq$Count / results()$tot) * 100))
     print(by.freq)
   }, include.rownames=FALSE)
   
