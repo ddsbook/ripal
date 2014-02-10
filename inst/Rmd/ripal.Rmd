@@ -1,0 +1,108 @@
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+library(data.table)
+library(stringr)
+library(ripal)
+
+p <- readPass(dumpfile)
+p.info <- file.info(dumpfile)
+p.bytes <- formatC(p.info$size, format="fg", big.mark = ",")
+p.passCount <- nrow(p)
+p.unique <- length(unique(p$orig))
+p.top <- topPasswords(p)
+b.top <- topBasewords(p)
+p.byLen <- byLength(p)
+p.byFreq <- lengthFreq(p)
+p.charStats <- charStats(p)
+p.common <- commonCounts(p) 
+
+tot <- nrow(p)
+
+kCounts <- function(ct) {
+  tmp <- data.frame(Term=names(ct), Count=as.numeric(unlist(ct)))
+  tmp$Percent <- ((tmp$Count / tot) * 100)
+  kable(tmp[order(-tmp$Count),], row.names=FALSE)
+}
+```
+ripal analysis of `r dumpfile` (file size: `r p.bytes` bytes)
+
+Total entries: `r p.passCount`
+Total unique entries: `r p.unique`
+
+Top Passwords
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kable(p.top)
+```
+
+Top Basewords
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kable(b.top)
+```
+
+Password Length
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kable(p.byLen)
+```
+
+Password Length (by freq)
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kable(p.byFreq)
+```
+
+`r sprintf("One to six characters = %d, (%3.3f%%)", p.charStats$oneToSix, p.charStats$oneToSixPct)`
+`r sprintf("One to eight characters = %d, (%3.3f%%)", p.charStats$oneToEight, p.charStats$oneToEightPct)`
+`r sprintf("More than eight characters = %d, (%3.3f%%)", p.charStats$ninePlus, p.charStats$ninePlusPct)`
+
+`r sprintf("Only lowercase alpha = %d, (%3.3f%%)", p.charStats$onlyLower, p.charStats$onlyLowerPct)`
+`r sprintf("Only uppercase alpha = %d, (%3.3f%%)", p.charStats$onlyUpper, p.charStats$onlyUpperPct)`
+`r sprintf("Only alpha = %d, (%3.3f%%)", p.charStats$onlyAlpha, p.charStats$onlyAlpha)`
+`r sprintf("Only numeric = %d, (%3.3f%%)", p.charStats$onlyNumeric, p.charStats$onlyNumeric)`
+
+`r sprintf("First capital last symbol = %d, (%3.3f%%)", p.charStats$firstCapLastSym, p.charStats$firstCapLastSymPct)`
+`r sprintf("First capital last number = %d, (%3.3f%%)", p.charStats$firstCapLastNum, p.charStats$firstCapLastNumPct)`
+
+Months
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$months)
+```
+
+Months (abbrev)
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$monthsAbbrev)
+```
+
+Weekdays
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$weekdays)
+```
+
+Weekdays (abbrev)
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$weekdaysAbbrev)
+```
+
+Worst 25 Passwords Counts
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$worst)
+```
+
+Planets
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$planets)
+```
+
+Common Colors
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$colors)
+```
+
+Seasons
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$seasons)
+```
+
+Years
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='asis'}
+kCounts(p.common$years)
+```
+
+

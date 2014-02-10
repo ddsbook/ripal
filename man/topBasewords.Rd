@@ -1,0 +1,25 @@
+\name{topBasewords}
+\alias{topBasewords}
+\title{Extract top 'n' basewords from a password list}
+\usage{
+topBasewords(passwords, n = 10)
+}
+\arguments{
+  \item{passwords}{a data frame of passwords with basewords
+  already computed}
+
+  \item{n}{how many most prevalent basewords to include in
+  the resultant data frame (default: 10)}
+}
+\value{
+data frame of count & ratio of top "n" basewords
+}
+\description{
+Returns a data frame of the count and ratio of the top "N"
+"basewords" in the passwords data frame.
+}
+\examples{
+passwords <- readPass("singles.org.txt")
+basewords <- topBasewords(passwords, 20)
+}
+

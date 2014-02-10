@@ -1,0 +1,9 @@
+Package: ripal
+Type: Package
+Title: Password dump analysis library/tool
+Version: 0.1
+Date: 2014-02-09
+Author: boB Rudis
+Maintainer: boB Rudis <bob@datadrivensecurity.info>
+Description: More about what it does (maybe more than one line)
+License: MIT

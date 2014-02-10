@@ -1,0 +1,23 @@
+\name{lengthFreq}
+\alias{lengthFreq}
+\title{Return password length statistics (by frequency) from passwords in a passwords data frame}
+\usage{
+lengthFreq(passwords)
+}
+\arguments{
+  \item{passwords}{a data frame of passwords with basewords
+  already computed}
+}
+\value{
+data frame of count & ratio of passwords by length, ordered
+by freq
+}
+\description{
+Returns a data frame of the count and ratio of passwords by
+length in the passwords data frame (ordered by frequency)
+}
+\examples{
+passwords <- readPass("singles.org.txt")
+countByFreq <- lengthFreq(passwords)
+}
+
