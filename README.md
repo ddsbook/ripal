@@ -1,7 +1,7 @@
 ripal
 =====
 
-Password Dump Analysis in R
+Password Dump Analysis in R, now with *extra crunchy package-y goodness*!
 
 *Heavily* based on [pipal](https://github.com/digininja/pipal) by @digininja.
 
