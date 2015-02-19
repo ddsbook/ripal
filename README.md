@@ -10,7 +10,7 @@ To run the command-line or GUI (shiny app) locally, you'll obviously need R and 
 Here's how to install the package:
 
 	library(devtools)
-	install_github(username="ddsbook", repo="ripal")
+	install_github("ddsbook/ripal")
 
 We'll be making the usage a bit more straightforward over time, but you can do command-line analyses with rudimentary `pipal`-like report output by invoking R and calling the `analyzePasswordDump()` function like this:
 

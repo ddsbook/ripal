@@ -8,7 +8,7 @@
 #'
 #' @author
 #' boB Rudis \email{bob@@datadrivensecurity.info} (@@hrbrmstr)
-#'
+#' 
 #' Maintainer: boB Rudis \email{bob@@datadrivensecurity.info} (@@hrbrmstr)
 #' @import data.table stringr knitr shiny
 #' @name ripal

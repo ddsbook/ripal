@@ -1,9 +1,25 @@
 Package: ripal
 Type: Package
 Title: Password dump analysis library/tool
-Version: 0.1
-Date: 2014-02-09
-Author: boB Rudis
+Version: 0.2
+Date: 2015-02-19
+Author: boB Rudis (@hrbrmstr)
 Maintainer: boB Rudis <bob@datadrivensecurity.info>
-Description: More about what it does (maybe more than one line)
-License: MIT
+Description: ripal is a password dump analysis library/tool for R, 
+    based initially on the seminal \code{pipal} tool (written in Ruby) 
+    by digininja - \url{https://github.com/digininja/pipal}\cr
+    \cr
+    ripal provides functions to generate summary statistics based on 
+    whole password usage, base password usage, and popular substring usage.
+URL: http://github.com/ddsecbook/ripal
+BugReports: https://github.com/ddsecbook/ripal/issues
+License: MIT + file LICENSE
+Depends:
+    R (>= 3.0.0),
+    htmlwidgets,
+    htmltools
+Imports:
+    data.table,
+    stringr,
+    knitr,
+    shiny

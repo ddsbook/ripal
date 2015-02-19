@@ -43,7 +43,7 @@ shinyUI(pageWithSidebar(
                  "'Top #' lists max items:", 
                  10, 5, 30, step=1),
     
-    sliderInput("dateRange","Date Range (for 3rd tab)", min=1975 , max=2050, value=c(1990,2020), step=1),
+    sliderInput("dateRange", "Date Range (for 3rd tab)", min=1975 , max=2050, value=c(1990,2020), step=1),
             
     div(HTML("You can find many password dumps at <a href='https://wiki.skullsecurity.org/Passwords'>SkullSecurity</a>.<hr/>")),
     

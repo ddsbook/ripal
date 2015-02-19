@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^singles\.org\.txt$
+^.*\.png$
+^.*\.md$
+^\.gitignore$
